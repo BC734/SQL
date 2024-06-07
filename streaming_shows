@@ -1,0 +1,49 @@
+# Movie & TV Show Data
+## Data
+This project utilized ficticious data from the Netflix database stored [here](https://www.db-fiddle.com/f/pfsdrKi9cgCDp4Wwb77AF/0)
+
+## SQL
+-- For this project we will take a look at a ficticious database of movies & tv shows and use them to answer questions. 
+
+-- first we'll take a look at how many movie titles there are in the database
+
+SELECT count(title)
+FROM netflix_titles_info AS titles
+WHERE type = 'Movie'
+;
+
+-- next, we'll identify when the most recent batch of tvshows/movies were added to the database
+
+SELECT max(date_added)
+FROM netflix_titles_info AS titles
+;
+
+-- Now we're listing the movies/tv shows in alphabetical order
+
+SELECT title
+FROM netflix_titles_info 
+ORDER BY title
+;
+
+-- Who was the Director for the movie The Starling?
+
+SELECT title, director
+FROM netflix_titles_info
+LEFT JOIN netflix_people
+ON netflix_titles_info.show_id = netflix_people.show_id
+WHERE title = 'The Starling'
+
+
+-- What is the oldest movie in the database and what year was it made?
+
+SELECT release_year, title
+FROM netflix_titles_info
+WHERE type = 'Movie'
+AND release_year <= (SELECT min(release_year) 
+                     FROM netflix_titles_info
+                    WHERE type = 'Movie')
+;
+
+
+
+
