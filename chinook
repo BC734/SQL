@@ -1,6 +1,6 @@
 #Chinook Database Queries
 ##Data
-The following queries were created to answer questions based on the Chinook Database. The database is available through think link: [https://github.com/lerocha/chinook-database]
+The following queries were created to answer questions based on the Chinook Database. The database is available through this link: [https://github.com/lerocha/chinook-database]
 The Chinook Database allows for personal use without limitation. 
 
 --Which tracks has been purchased 3 or more times? 
