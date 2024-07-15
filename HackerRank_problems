@@ -1,0 +1,235 @@
+#HackerRank Problems
+--Here is a compilation of the SQL problems I have worked through on HackerRank. I find these problems to be a fun challenge as I am improving my SQL skills. 
+--Often these are easy to complete with no issue. Sometimes I need to seek out additional information to answer the question. When I seek out additional information I use Google, StackOverflow, and ChatGPT. 
+
+--Query a list of CITY names from STATION for cities that have an even ID number. Print the results in any order, but exclude duplicates from the answer.
+SELECT distinct city, id/2
+FROM station
+WHERE id/2 = FLOOR(id/2)
+
+--Find the difference between the total number of CITY entries in the table and the number of distinct CITY entries in the table.
+SELECT count(city)-count(distinct city) AS difference
+FROM station
+
+--Query the two cities in STATION with the shortest and longest CITY names, as well as their respective lengths (i.e.: number of characters in the name). If there is more than one smallest or largest city, choose the one that comes first when ordered alphabetically.
+SELECT CITY, LENGTH(CITY) AS NameLength
+FROM STATION
+WHERE LENGTH(CITY) = (SELECT MIN(LENGTH(CITY)) FROM STATION)
+ORDER BY CITY
+LIMIT 1
+;
+
+SELECT CITY, LENGTH(CITY) AS NameLength
+FROM STATION
+WHERE LENGTH(CITY) = (SELECT MAX(LENGTH(CITY)) FROM STATION)
+ORDER BY CITY
+LIMIT 1
+;
+
+--Query the list of CITY names starting with vowels (i.e., a, e, i, o, or u) from STATION. Your result cannot contain duplicates.
+SELECT distinct city
+FROM station
+WHERE substring(city,1,1) IN ("a", "e", "i", "o", "u")
+
+--Query the list of CITY names ending with vowels (a, e, i, o, u) from STATION. Your result cannot contain duplicates.
+SELECT distinct city
+FROM station
+WHERE right(city,1) IN ("a", "e", "i", "o", "u")
+
+--Query the list of CITY names from STATION which have vowels (i.e., a, e, i, o, and u) as both their first and last characters. Your result cannot contain duplicates.
+WITH vowel_start AS (SELECT distinct city
+FROM station
+WHERE substring(city,1,1) IN ("a", "e", "i", "o", "u")),
+vowel_end AS (SELECT distinct city
+FROM station
+WHERE right(city,1) IN ("a", "e", "i", "o", "u"))
+
+SELECT distinct city
+FROM station
+WHERE city IN (SELECT city FROM vowel_start)
+AND city IN (SELECT city from vowel_end)
+
+--Query the list of CITY names from STATION that do not start with vowels. Your result cannot contain duplicates.
+SELECT distinct city
+FROM station
+WHERE substring(city,1,1) NOT IN ("a", "e", "i", "o", "u")
+
+--Query the list of CITY names from STATION that do not end with vowels. Your result cannot contain duplicates.
+SELECT distinct city
+FROM station
+WHERE RIGHT(city,1) NOT IN ('a', 'e', 'i', 'o', 'u')
+
+--Query the list of CITY names from STATION that either do not start with vowels or do not end with vowels. Your result cannot contain duplicates.
+WITH vowel_start AS (
+    SELECT distinct city 
+    FROM station 
+    WHERE substring(city,1,1) NOT IN ('a', 'e', 'i', 'o', 'u')
+    ),
+   vowel_end AS (
+       SELECT distinct city 
+       FROM station 
+       WHERE right(city, 1) NOT IN ('a', 'e', 'i', 'o', 'u')
+       )
+               
+SELECT distinct city
+FROM station
+               WHERE city IN (SELECT city FROM vowel_start)
+               OR city IN (SELECT city FROM vowel_end)
+
+--Query the list of CITY names from STATION that do not start with vowels and do not end with vowels. Your result cannot contain duplicates.
+SELECT distinct city
+FROM station
+WHERE city IN (SELECT distinct city 
+    FROM station 
+    WHERE substring(city,1,1) NOT IN ('a', 'e', 'i', 'o', 'u'))
+AND city IN (SELECT distinct city 
+       FROM station 
+       WHERE right(city, 1) NOT IN ('a', 'e', 'i', 'o', 'u'))
+
+--Query the Name of any student in STUDENTS who scored higher than  Marks. Order your output by the last three characters of each name. If two or more students both have names ending in the same last three characters (i.e.: Bobby, Robby, etc.), secondary sort them by ascending ID.
+SELECT name
+FROM students
+WHERE marks >75
+ORDER BY right(name,3), id
+
+--Write a query that prints a list of employee names (i.e.: the name attribute) from the Employee table in alphabetical order.
+SELECT name
+FROM employee
+ORDER BY name
+
+--Write a query that prints a list of employee names (i.e.: the name attribute) for employees in Employee having a salary greater than  per month who have been employees for less than  months. Sort your result by ascending employee_id.
+SELECT name
+FROM employee
+WHERE salary >2000
+AND months <10
+ORDER BY employee_id
+
+--Write a query identifying the type of each record in the TRIANGLES table using its three side lengths. Output one of the following statements for each record in the table:
+--Equilateral: It's a triangle with  sides of equal length.
+--Isosceles: It's a triangle with  sides of equal length.
+--Scalene: It's a triangle with  sides of differing lengths.
+--Not A Triangle: The given values of A, B, and C don't form a triangle.
+SELECT CASE 
+    WHEN A+B <= C OR A+C <=B OR B+C <=A THEN "Not A Triangle"
+    WHEN A = B AND B = C THEN "Equilateral"
+    WHEN (A = B AND B != C) OR (A=C AND C !=B) OR (B=C AND C != A) THEN "Isosceles"
+    ELSE "Scalene" 
+    END
+FROM triangles
+
+--Generate the following two result sets:
+--Query an alphabetically ordered list of all names in OCCUPATIONS, immediately followed by the first letter of each profession as a parenthetical.
+--Query the number of ocurrences of each occupation in OCCUPATIONS. Sort the occurrences in ascending order, and output them in the following format: 
+"There are a total of [occupation_count] [occupation]s." If more than one Occupation has the same [occupation_count], they should be ordered alphabetically.
+SELECT concat(name, "(", SUBSTRING(occupation,1,1), ")") AS name_occ
+FROM occupations
+ORDER BY name_occ
+;
+
+SELECT concat("There are a total of ", COUNT(occupation), " ", lower(occupation), "s.")
+FROM occupations
+GROUP BY occupation
+ORDER BY count(occupation), occupation
+
+--Query the total population of all cities in CITY where District is California.
+SELECT SUM(population)
+FROM city
+GROUP BY district
+HAVING district = "California"
+
+--Query the average population of all cities in CITY where District is California.
+SELECT AVG(population)
+FROM city
+GROUP BY district
+HAVING district = "California"
+
+--Query the average population for all cities in CITY, rounded down to the nearest integer.
+SELECT ROUND(AVG(population))
+FROM city
+
+--Query the sum of the populations for all Japanese cities in CITY. The COUNTRYCODE for Japan is JPN.
+SELECT SUM(population)
+FROM city
+GROUP BY countrycode
+HAVING countrycode = "JPN"
+
+--Query the difference between the maximum and minimum populations in CITY.
+SELECT MAX(population) - MIN(population)
+FROM city
+
+**--Samantha was tasked with calculating the average monthly salaries for all employees in the EMPLOYEES table, but did not realize her keyboard's  key was broken until after completing the calculation. She wants your help finding the difference between her miscalculation (using salaries with any zeros removed), and the actual average salary.
+**--Write a query calculating the amount of error (i.e.:  average monthly salaries), and round it up to the next integer.
+
+--Query the following two values from the STATION table:
+--The sum of all values in LAT_N rounded to a scale of  decimal places.
+--The sum of all values in LONG_W rounded to a scale of  decimal places.
+SELECT ROUND(SUM(LAT_N),2) AS "lat", ROUND(SUM(LONG_W),2) AS "lon"
+FROM station
+;
+
+--Query the sum of Northern Latitudes (LAT_N) from STATION having values greater than  and less than . Truncate your answer to  decimal places.
+SELECT TRUNCATE(SUM(LAT_N), 4)
+FROM station
+WHERE LAT_N between 38.7880 AND 137.2345
+;
+
+--We define an employee's total earnings to be their monthly  worked, and the maximum total earnings to be the maximum total earnings for any employee in the Employee table. Write a query to find the maximum total earnings for all employees as well as the total number of employees who have maximum total earnings. Then print these values as  space-separated integers.
+SELECT total_salary, COUNT(total_salary)
+FROM (
+    SELECT months*salary AS total_salary
+    FROM employee
+    WHERE months*salary IN (SELECT MAX(months*salary) FROM employee)
+    ) AS max_salary
+GROUP BY total_salary
+
+--Query the greatest value of the Northern Latitudes (LAT_N) from STATION that is less than . Truncate your answer to  decimal places.
+SELECT TRUNCATE(MAX(LAT_N), 4)
+FROM station
+WHERE LAT_N < 137.2345
+
+--Query the Western Longitude (LONG_W) for the largest Northern Latitude (LAT_N) in STATION that is less than . Round your answer to  decimal places.
+SELECT ROUND(LONG_W, 4)
+FROM station
+WHERE LAT_N IN 
+    (SELECT MAX(LAT_N)
+    FROM station
+    WHERE LAT_N < 137.2345
+     )
+
+--Query the smallest Northern Latitude (LAT_N) from STATION that is greater than . Round your answer to  decimal places.
+SELECT ROUND(MIN(LAT_N), 4)
+FROM STATION
+WHERE LAT_N >38.7780
+
+--Query the Western Longitude (LONG_W)where the smallest Northern Latitude (LAT_N) in STATION is greater than . Round your answer to  decimal places.
+SELECT ROUND(LONG_W, 4)
+FROM station
+WHERE LAT_N IN (
+    SELECT MIN(LAT_N)
+    FROM STATION
+    WHERE LAT_N >38.7780)
+
+--Samantha was tasked with calculating the average monthly salaries for all employees in the EMPLOYEES table, but did not realize her keyboard's  key was broken until after completing the calculation. She wants your help finding the difference between her miscalculation (using salaries with any zeros removed), and the actual average salary.
+--Write a query calculating the amount of error (i.e.:  average monthly salaries), and round it up to the next integer.
+SELECT CEILING(AVG(salary) - AVG(REPLACE(salary,0,'')) )
+FROM EMPLOYEES 
+
+--Consider  and  to be two points on a 2D plane where  are the respective minimum and maximum values of Northern Latitude (LAT_N) and  are the respective minimum and maximum values of Western Longitude (LONG_W) in STATION.
+--Query the Manhattan Distance between points  and  and round it to a scale of  decimal places.
+SELECT ROUND(
+	ABS(MIN(LAT_N) - MAX(LAT_N)) 
+	+ 
+	ABS(MIN(LONG_W) - MAX(LONG_W))
+	,4)
+FROM STATION
+
+--Consider P1(a,b) and P2(c,d) to be two points on a 2D plane where (a,b) are the respective minimum and maximum values of Northern Latitude (LAT_N) and (c,d) are the respective minimum and maximum values of Western Longitude (LONG_W) in STATION.
+--Query the Euclidean Distance between points  and  and format your answer to display  decimal digits.
+SELECT ROUND(
+    SQRT(
+    POWER(MIN(LAT_N) - MAX(LAT_N),2)
+           +
+    POWER(MIN(LONG_W) - MAX(LONG_W),2)
+    )
+    ,4)
+FROM STATION
